@@ -31,3 +31,40 @@ export const DonationProvider = ({ children }) => {
 };
 
 export const useDonations = () => useContext(DonationContext);
+
+const [donations, setDonations] = useState([
+  {
+    id: 1,
+    food_type: "Rice & Curry",
+    quantity: 5,
+    unit: "plates",
+    lat: 11.2588,
+    lng: 75.7804,
+    status: "available" // NEW
+  }
+]);
+
+const acceptDonation = (id) => {
+  setDonations((prev) =>
+    prev.map((d) =>
+      d.id === id ? { ...d, status: "picked" } : d
+    )
+  );
+};
+
+const completeDonation = (id) => {
+  setDonations((prev) =>
+    prev.map((d) =>
+      d.id === id ? { ...d, status: "delivered" } : d
+    )
+  );
+};
+
+<DonationContext.Provider
+  value={{
+    donations,
+    addDonation,
+    acceptDonation,
+    completeDonation
+  }}
+></DonationContext.Provider>
