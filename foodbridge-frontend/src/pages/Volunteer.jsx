@@ -1,21 +1,11 @@
-import { useEffect, useState } from "react";
-import { fetchDonations } from "../api/donations.api";
+import { useDonations } from "../context/DonationContext";
 import MapContainer from "../components/MapContainer";
 
 const Volunteer = () => {
-  const [tasks, setTasks] = useState([]);
-
-  useEffect(() => {
-    loadTasks();
-  }, []);
-
-  const loadTasks = async () => {
-    const res = await fetchDonations();
-    setTasks(res.data);
-  };
+  const { donations, removeDonation } = useDonations();
 
   const handleAccept = (id) => {
-    setTasks((prev) => prev.filter((t) => t.id !== id));
+    removeDonation(id);
   };
 
   return (
@@ -25,7 +15,7 @@ const Volunteer = () => {
       <div style={{ width: "30%", padding: "10px" }}>
         <h2>Available Tasks</h2>
 
-        {tasks.map((t) => (
+        {donations.map((t) => (
           <div key={t.id} style={{ border: "1px solid #ccc", marginBottom: "10px" }}>
             <p>{t.food_type}</p>
             <p>{t.quantity} {t.unit}</p>
@@ -37,7 +27,7 @@ const Volunteer = () => {
 
       {/* Map */}
       <div style={{ width: "70%" }}>
-        <MapContainer tasks={tasks} onAccept={handleAccept} />
+        <MapContainer tasks={donations} onAccept={handleAccept} />
       </div>
     </div>
   );
