@@ -4,7 +4,7 @@ import mapboxgl from "mapbox-gl";
 mapboxgl.accessToken = "YOUR_MAPBOX_TOKEN";
 
 const MapContainer = ({ tasks, onAccept }) => {
-  const mapRef = useRef(null);
+  const mapRef = useRef([]);
   const mapInstance = useRef(null);
 
   useEffect(() => {
