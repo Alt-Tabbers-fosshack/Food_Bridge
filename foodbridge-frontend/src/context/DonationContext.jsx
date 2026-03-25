@@ -11,13 +11,23 @@ export const DonationProvider = ({ children }) => {
       unit: "plates",
       lat: 11.2588,
       lng: 75.7804,
-      distance: 1.2,
+      distance: "1.2",
+      status: "available"
+    },
+    {
+      id: 2,
+      food_type: "Fresh Bread",
+      quantity: 12,
+      unit: "packets",
+      lat: 11.2601,
+      lng: 75.7820,
+      distance: "0.8",
       status: "available"
     }
   ]);
 
   const addDonation = (donation) => {
-    setDonations((prev) => [...prev, donation]);
+    setDonations((prev) => [...prev, { ...donation, status: "available" }]);
   };
 
   const removeDonation = (id) => {
@@ -26,29 +36,19 @@ export const DonationProvider = ({ children }) => {
 
   const acceptDonation = (id) => {
     setDonations((prev) =>
-      prev.map((d) =>
-        d.id === id ? { ...d, status: "picked" } : d
-      )
+      prev.map((d) => (d.id === id ? { ...d, status: "picked" } : d))
     );
   };
 
   const completeDonation = (id) => {
     setDonations((prev) =>
-      prev.map((d) =>
-        d.id === id ? { ...d, status: "delivered" } : d
-      )
+      prev.map((d) => (d.id === id ? { ...d, status: "delivered" } : d))
     );
   };
 
   return (
     <DonationContext.Provider
-      value={{
-        donations,
-        addDonation,
-        removeDonation,
-        acceptDonation,
-        completeDonation
-      }}
+      value={{ donations, addDonation, removeDonation, acceptDonation, completeDonation }}
     >
       {children}
     </DonationContext.Provider>

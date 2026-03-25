@@ -1,29 +1,26 @@
-import { createContext, useState, useContext } from "react";
+import { createContext, useState, useContext, useEffect } from "react";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-
-  useState(() => {
-  const stored = localStorage.getItem("user");
-  return stored ? JSON.parse(stored) : null;
-});
+  const [user, setUser] = useState(() => {
+    // Fix: initialize from localStorage correctly
+    const stored = localStorage.getItem("foodbridge_user");
+    return stored ? JSON.parse(stored) : null;
+  });
 
   const login = (data) => {
-    // fake login (hackathon mode)
     const fakeUser = {
       email: data.email,
-      role: data.role, // donor / volunteer / receiver
+      role: data.role,
       token: "fake-jwt-token"
     };
-
-    localStorage.setItem("user", JSON.stringify(fakeUser));
+    localStorage.setItem("foodbridge_user", JSON.stringify(fakeUser));
     setUser(fakeUser);
   };
 
   const logout = () => {
-    localStorage.removeItem("user");
+    localStorage.removeItem("foodbridge_user");
     setUser(null);
   };
 
