@@ -1,0 +1,67 @@
+/* NAVBAR */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  height: 60px;
+  background: rgba(15, 26, 14, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+.nav-logo { font-size: 22px; }
+.nav-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--green-light);
+  letter-spacing: -0.3px;
+}
+
+.nav-right { display: flex; align-items: center; gap: 14px; }
+
+.nav-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  border-radius: 100px;
+  border: 1px solid;
+  background: var(--surface);
+  font-size: 13px;
+}
+.nav-role { font-weight: 600; }
+.nav-email { color: var(--text-dim); font-size: 12px; }
+
+.nav-logout {
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text-dim);
+  font-size: 13px;
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+}
+.nav-logout:hover { background: var(--surface2); color: var(--text); }
+
+.nav-login-btn {
+  padding: 7px 18px;
+  border-radius: 8px;
+  background: var(--green);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.nav-login-btn:hover { background: var(--green-light); }
