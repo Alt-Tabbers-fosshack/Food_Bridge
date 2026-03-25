@@ -1,16 +1,18 @@
+
 import React from "react";
 import ReactDOM from "react-dom/client";
+import "./index.css";
 import App from "./App";
 import { AuthProvider } from "./context/AuthContext";
-import "mapbox-gl/dist/mapbox-gl.css";
 import { DonationProvider } from "./context/DonationContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-
 root.render(
-  <AuthProvider>
-    <DonationProvider>
-      <App />
-    </DonationProvider>
-  </AuthProvider>,
+  <React.StrictMode>
+    <AuthProvider>
+      <DonationProvider>
+        <App />
+      </DonationProvider>
+    </AuthProvider>
+  </React.StrictMode>
 );
