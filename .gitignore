@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtualenv
+venv/
+Lib/
+Include/
+Scripts/
+
+# Database
+db.sqlite3
+
+# IDE / Editor
+.idea/
+.vscode/
+desktop.ini
