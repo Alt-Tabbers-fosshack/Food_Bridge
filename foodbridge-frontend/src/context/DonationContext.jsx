@@ -1,44 +1,54 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import * as donationAPI from "../api/donations.api";
+import { createContext, useContext, useState } from "react";
 
 const DonationContext = createContext();
 
 export const DonationProvider = ({ children }) => {
-  const [donations, setDonations] = useState([]);
+  const [donations, setDonations] = useState([
+    {
+      id: 1,
+      food_type: "Rice & Curry",
+      quantity: 5,
+      unit: "plates",
+      lat: 11.2588,
+      lng: 75.7804,
+      distance: "1.2",
+      status: "available"
+    },
+    {
+      id: 2,
+      food_type: "Fresh Bread",
+      quantity: 12,
+      unit: "packets",
+      lat: 11.2601,
+      lng: 75.7820,
+      distance: "0.8",
+      status: "available"
+    }
+  ]);
 
-  const loadDonations = async () => {
-    const res = await donationAPI.getDonations();
-    setDonations(res.data);
+  const addDonation = (donation) => {
+    setDonations((prev) => [...prev, { ...donation, status: "available" }]);
   };
 
-  const createDonation = async (data) => {
-    await donationAPI.createDonation(data);
-    await loadDonations();
+  const removeDonation = (id) => {
+    setDonations((prev) => prev.filter((d) => d.id !== id));
   };
 
-  const pickupDonation = async (id) => {
-    await donationAPI.pickupDonation(id);
-    await loadDonations();
+  const acceptDonation = (id) => {
+    setDonations((prev) =>
+      prev.map((d) => (d.id === id ? { ...d, status: "picked" } : d))
+    );
   };
 
-  const completeDonation = async (id) => {
-    await donationAPI.completeDonation(id);
-    await loadDonations();
+  const completeDonation = (id) => {
+    setDonations((prev) =>
+      prev.map((d) => (d.id === id ? { ...d, status: "delivered" } : d))
+    );
   };
-
-  useEffect(() => {
-    loadDonations();
-  }, []);
 
   return (
     <DonationContext.Provider
-      value={{
-        donations,
-        loadDonations,
-        createDonation,
-        pickupDonation,
-        completeDonation,
-      }}
+      value={{ donations, addDonation, removeDonation, acceptDonation, completeDonation }}
     >
       {children}
     </DonationContext.Provider>
