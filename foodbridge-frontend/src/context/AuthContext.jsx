@@ -1,61 +1,31 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import * as authAPI from "../api/auth.api";
+import { createContext, useState, useContext, useEffect } from "react";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [accessToken, setAccessToken] = useState(null);
-  const [refreshToken, setRefreshToken] = useState(null);
+  const [user, setUser] = useState(() => {
+    // Fix: initialize from localStorage correctly
+    const stored = localStorage.getItem("foodbridge_user");
+    return stored ? JSON.parse(stored) : null;
+  });
 
-  // 🔹 Restore session
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const storedAccess = localStorage.getItem("accessToken");
-    const storedRefresh = localStorage.getItem("refreshToken");
-
-    if (storedUser && storedAccess) {
-      setUser(JSON.parse(storedUser));
-      setAccessToken(storedAccess);
-      setRefreshToken(storedRefresh);
-    }
-  }, []);
-
-  // 🔹 Login
-  const login = async (data) => {
-    const res = await authAPI.login(data);
-
-    const { user, accessToken, refreshToken } = res.data;
-
-    setUser(user);
-    setAccessToken(accessToken);
-    setRefreshToken(refreshToken);
-
-    localStorage.setItem("user", JSON.stringify(user));
-    localStorage.setItem("accessToken", accessToken);
-    localStorage.setItem("refreshToken", refreshToken);
+  const login = (data) => {
+    const fakeUser = {
+      email: data.email,
+      role: data.role,
+      token: "fake-jwt-token"
+    };
+    localStorage.setItem("foodbridge_user", JSON.stringify(fakeUser));
+    setUser(fakeUser);
   };
 
-  // 🔹 Logout
   const logout = () => {
+    localStorage.removeItem("foodbridge_user");
     setUser(null);
-    setAccessToken(null);
-    setRefreshToken(null);
-
-    localStorage.clear();
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        role: user?.role,
-        accessToken,
-        refreshToken,
-        login,
-        logout,
-      }}
-    >
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
