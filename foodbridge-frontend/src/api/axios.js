@@ -1,10 +1,10 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:5000/api", // change if needed
+  baseURL: process.env.REACT_APP_API_URL || "http://localhost:8000/api",
 });
 
-// 🔹 Attach access token
+// Attach access token to every request
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("accessToken");
   if (token) {
@@ -13,17 +13,41 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// 🔹 Handle 401 errors
+// Handle 401 errors (token expired)
 api.interceptors.response.use(
-  (res) => res,
-  async (err) => {
-    if (err.response?.status === 401) {
-      console.warn("Unauthorized - logging out");
-      localStorage.clear();
-      window.location.href = "/login";
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    // If 401 and haven't retried yet, try refreshing token
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      const refreshToken = localStorage.getItem("refreshToken");
+      if (refreshToken) {
+        try {
+          const response = await axios.post(
+            `${process.env.REACT_APP_API_URL}/token/refresh/`,
+            { refresh: refreshToken },
+          );
+
+          const { access } = response.data;
+          localStorage.setItem("accessToken", access);
+
+          // Retry original request with new token
+          originalRequest.headers.Authorization = `Bearer ${access}`;
+          return api(originalRequest);
+        } catch (refreshError) {
+          // Refresh failed, logout user
+          localStorage.clear();
+          window.location.href = "/login";
+          return Promise.reject(refreshError);
+        }
+      }
     }
-    return Promise.reject(err);
-  }
+
+    return Promise.reject(error);
+  },
 );
 
 export default api;

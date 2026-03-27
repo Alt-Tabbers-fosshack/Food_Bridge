@@ -1,15 +1,23 @@
+// MapContainer.jsx
 import { useEffect, useRef } from "react";
-import mapboxgl from "mapbox-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import "./MapContainer.css";
-
-mapboxgl.accessToken = "YOUR_MAPBOX_TOKEN";
 
 const statusColor = {
   available: "#5aad5a",
   picked: "#e8a030",
-  delivered: "#5a9fd4"
+  delivered: "#5a9fd4",
 };
+
+const createMarkerIcon = (color) =>
+  L.divIcon({
+    className: "",
+    html: `<div class="map-marker" style="--mcolor:${color}"><span class="map-marker-icon">🍱</span></div>`,
+    iconSize: [36, 36],
+    iconAnchor: [18, 36],
+    popupAnchor: [0, -38],
+  });
 
 const MapContainer = ({ tasks, onAccept }) => {
   const mapRef = useRef(null);
@@ -17,17 +25,28 @@ const MapContainer = ({ tasks, onAccept }) => {
   const markersRef = useRef({});
 
   useEffect(() => {
-    mapInstance.current = new mapboxgl.Map({
-      container: mapRef.current,
-      style: "mapbox://styles/mapbox/dark-v11",
-      center: [75.7804, 11.2588],
-      zoom: 13
+    // Initialize map centered on Thrissur, Kerala
+    mapInstance.current = L.map(mapRef.current, {
+      center: [11.2588, 75.7804],
+      zoom: 13,
+      zoomControl: false, // We'll add it manually for positioning
     });
 
-    mapInstance.current.addControl(new mapboxgl.NavigationControl(), "top-right");
+    // OpenStreetMap tile layer — no API key needed!
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution:
+        '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19,
+    }).addTo(mapInstance.current);
+
+    // Add zoom control to top-right (matches original)
+    L.control.zoom({ position: "topright" }).addTo(mapInstance.current);
 
     return () => {
-      if (mapInstance.current) mapInstance.current.remove();
+      if (mapInstance.current) {
+        mapInstance.current.remove();
+        mapInstance.current = null;
+      }
     };
   }, []);
 
@@ -35,39 +54,49 @@ const MapContainer = ({ tasks, onAccept }) => {
     if (!mapInstance.current) return;
 
     // Remove old markers
-    Object.values(markersRef.current).forEach(m => m.remove());
+    Object.values(markersRef.current).forEach((m) => m.remove());
     markersRef.current = {};
 
     tasks.forEach((task) => {
-      // Custom marker element
-      const el = document.createElement("div");
-      el.className = "map-marker";
-      el.style.setProperty("--mcolor", statusColor[task.status] || statusColor.available);
-      el.innerHTML = `<span class="map-marker-icon">🍱</span>`;
+      const color = statusColor[task.status] || statusColor.available;
+      const icon = createMarkerIcon(color);
 
-      const popup = new mapboxgl.Popup({
-        offset: 20,
-        closeButton: true,
-        maxWidth: "220px",
-        className: "fb-popup"
-      }).setHTML(`
+      const statusLabel =
+        task.status === "available"
+          ? "Available"
+          : task.status === "picked"
+          ? "En Route"
+          : "Delivered";
+
+      const popupHTML = `
         <div class="popup-inner">
           <div class="popup-title">${task.food_type}</div>
           <div class="popup-meta">${task.quantity} ${task.unit} · ${task.distance} km away</div>
-          <div class="popup-status status-${task.status}">${task.status === "available" ? "Available" : task.status === "picked" ? "En Route" : "Delivered"}</div>
-          ${task.status === "available" ? `<button class="popup-accept-btn" id="popup-btn-${task.id}">Accept Task →</button>` : ""}
+          <div class="popup-status status-${task.status}">${statusLabel}</div>
+          ${
+            task.status === "available"
+              ? `<button class="popup-accept-btn" id="popup-btn-${task.id}">Accept Task →</button>`
+              : ""
+          }
         </div>
-      `);
+      `;
 
-      const marker = new mapboxgl.Marker(el)
-        .setLngLat([task.lng, task.lat])
-        .setPopup(popup)
-        .addTo(mapInstance.current);
+      const marker = L.marker([task.lat, task.lng], { icon })
+        .addTo(mapInstance.current)
+        .bindPopup(popupHTML, {
+          maxWidth: 220,
+          className: "fb-popup",
+        });
 
-      popup.on("open", () => {
+      marker.on("popupopen", () => {
         setTimeout(() => {
           const btn = document.getElementById(`popup-btn-${task.id}`);
-          if (btn) btn.onclick = () => { onAccept(task.id); popup.remove(); };
+          if (btn) {
+            btn.onclick = () => {
+              onAccept(task.id);
+              marker.closePopup();
+            };
+          }
         }, 50);
       });
 
@@ -79,9 +108,18 @@ const MapContainer = ({ tasks, onAccept }) => {
     <div className="map-wrap">
       <div ref={mapRef} className="map-container" />
       <div className="map-legend">
-        <div className="legend-item"><span style={{ background: statusColor.available }} className="legend-dot" />Available</div>
-        <div className="legend-item"><span style={{ background: statusColor.picked }} className="legend-dot" />En Route</div>
-        <div className="legend-item"><span style={{ background: statusColor.delivered }} className="legend-dot" />Delivered</div>
+        <div className="legend-item">
+          <span style={{ background: statusColor.available }} className="legend-dot" />
+          Available
+        </div>
+        <div className="legend-item">
+          <span style={{ background: statusColor.picked }} className="legend-dot" />
+          En Route
+        </div>
+        <div className="legend-item">
+          <span style={{ background: statusColor.delivered }} className="legend-dot" />
+          Delivered
+        </div>
       </div>
     </div>
   );
