@@ -26,12 +26,15 @@ class FoodDonationSerializer(serializers.ModelSerializer):
         read_only=True,
         required=False
     )
+    # Add aliases for frontend compatibility
+    lat = serializers.DecimalField(source='latitude', max_digits=9, decimal_places=6, read_only=True)
+    lng = serializers.DecimalField(source='longitude', max_digits=9, decimal_places=6, read_only=True)
     
     class Meta:
         model = FoodDonation
         fields = [
             'id', 'donor', 'donor_id', 'food_type', 'quantity', 'unit',
-            'latitude', 'longitude', 'hours_until_expiry', 'status',
+            'latitude', 'longitude','lat' ,'lng','hours_until_expiry', 'status',
             'volunteer', 'receiver', 'created_at', 'updated_at', 'distance'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at', 'donor']
