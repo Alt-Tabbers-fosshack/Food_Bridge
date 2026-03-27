@@ -14,20 +14,41 @@ const Donor = () => {
   const { user } = useAuth();
   const [form, setForm] = useState({ food_type: "", quantity: "", unit: "plates" });
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.food_type || !form.quantity) return;
-    addDonation({
-      id: Date.now(),
-      ...form,
-      lat: 11.2588 + Math.random() * 0.01,
-      lng: 75.7804 + Math.random() * 0.01,
-      distance: (Math.random() * 5).toFixed(1)
-    });
-    setForm({ food_type: "", quantity: "", unit: "plates" });
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 2500);
+
+    setLoading(true);
+    try {
+      // Get user's geolocation
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          await addDonation({
+            food_type: form.food_type,
+            quantity: parseFloat(form.quantity),
+            unit: form.unit,
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            hours_until_expiry: 4,
+          });
+
+          setForm({ food_type: "", quantity: "", unit: "plates" });
+          setSubmitted(true);
+          setTimeout(() => setSubmitted(false), 2500);
+          setLoading(false);
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          alert("Please enable location access to create donation");
+          setLoading(false);
+        }
+      );
+    } catch (err) {
+      alert(err.detail || "Failed to create donation");
+      setLoading(false);
+    }
   };
 
   const myDonations = donations;
@@ -92,8 +113,8 @@ const Donor = () => {
               </div>
             </div>
 
-            <button type="submit" className={`submit-btn ${submitted ? "success" : ""}`}>
-              {submitted ? "✓ Donation Added!" : "Add Donation →"}
+            <button type="submit" className={`submit-btn ${submitted ? "success" : ""}`} disabled={loading}>
+              {loading ? "Creating..." : submitted ? "✓ Donation Added!" : "Add Donation →"}
             </button>
           </form>
 

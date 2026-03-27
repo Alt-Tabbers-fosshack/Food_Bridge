@@ -1,113 +1,183 @@
 import { useState } from "react";
-import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import "./Login.css";
 
-const roles = [
-  {
-    value: "donor",
-    label: "Donor",
-    icon: "🍱",
-    desc: "Share surplus food with your community",
-    color: "#5aad5a"
-  },
-  {
-    value: "volunteer",
-    label: "Volunteer",
-    icon: "🚚",
-    desc: "Pick up & deliver food to those in need",
-    color: "#e8a030"
-  },
-  {
-    value: "receiver",
-    label: "Receiver",
-    icon: "🏠",
-    desc: "Receive food donations in your area",
-    color: "#5a9fd4"
-  }
-];
-
 const Login = () => {
-  const { login } = useAuth();
-  const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [role, setRole] = useState("donor");
+  const [mode, setMode] = useState("login"); // 'login' or 'register'
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+    password2: "",
+    role: "donor",
+  });
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const { login, register } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email) return;
+    setError("");
     setLoading(true);
-    setTimeout(() => {
-      login({ email, role });
-      navigate(`/${role}`);
-    }, 600);
+
+    try {
+      if (mode === "login") {
+        await login(formData.username, formData.password);
+        navigate(`/${formData.role || 'donor'}`);
+      } else {
+        // Registration
+        if (formData.password !== formData.password2) {
+          setError("Passwords don't match");
+          setLoading(false);
+          return;
+        }
+
+        const user = await register(
+          formData.username,
+          formData.email,
+          formData.password,
+          formData.password2,
+          formData.role
+        );
+
+        navigate(`/${user.role}`);
+      }
+    } catch (err) {
+      setError(err.detail || err.username?.[0] || err.email?.[0] || "Authentication failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const selectedRole = roles.find(r => r.value === role);
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   return (
     <div className="login-page">
-      <div className="login-bg-orb orb1" />
-      <div className="login-bg-orb orb2" />
-
-      <div className="login-card">
+      <div className="login-container">
         <div className="login-header">
-          <div className="login-icon">🌍</div>
-          <h1 className="login-heading">Welcome to <em>FoodBridge</em></h1>
-          <p className="login-sub">Connecting surplus food to people in need</p>
+          <h1 className="login-title">🌍 FoodBridge</h1>
+          <p className="login-subtitle">Connecting surplus food with those in need</p>
         </div>
 
+        {error && (
+          <div className="error-message">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="login-form">
-          <div className="field-group">
-            <label className="field-label">Your Email</label>
+          {mode === "register" && (
+            <div className="form-group">
+              <label className="form-label">Email</label>
+              <input
+                type="email"
+                name="email"
+                className="form-input"
+                placeholder="your@email.com"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          )}
+
+          <div className="form-group">
+            <label className="form-label">Username</label>
             <input
-              type="email"
-              className="field-input"
-              placeholder="you@example.com"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
+              type="text"
+              name="username"
+              className="form-input"
+              placeholder="Enter username"
+              value={formData.username}
+              onChange={handleChange}
               required
             />
           </div>
 
-          <div className="field-group">
-            <label className="field-label">I am a…</label>
-            <div className="role-grid">
-              {roles.map(r => (
-                <button
-                  key={r.value}
-                  type="button"
-                  className={`role-card ${role === r.value ? "selected" : ""}`}
-                  style={{ "--role-color": r.color }}
-                  onClick={() => setRole(r.value)}
-                >
-                  <span className="role-icon">{r.icon}</span>
-                  <span className="role-name">{r.label}</span>
-                  <span className="role-desc">{r.desc}</span>
-                </button>
-              ))}
-            </div>
+          <div className="form-group">
+            <label className="form-label">Password</label>
+            <input
+              type="password"
+              name="password"
+              className="form-input"
+              placeholder="Enter password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
           </div>
 
-          <button
-            type="submit"
-            className="login-btn"
-            style={{ "--role-color": selectedRole.color }}
-            disabled={loading || !email}
-          >
-            {loading ? (
-              <span className="btn-spinner" />
-            ) : (
-              <>
-                <span>Enter as {selectedRole.label}</span>
-                <span>{selectedRole.icon}</span>
-              </>
-            )}
+          {mode === "register" && (
+            <>
+              <div className="form-group">
+                <label className="form-label">Confirm Password</label>
+                <input
+                  type="password"
+                  name="password2"
+                  className="form-input"
+                  placeholder="Confirm password"
+                  value={formData.password2}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">I want to be a...</label>
+                <div className="role-buttons">
+                  <button
+                    type="button"
+                    className={`role-btn ${formData.role === "donor" ? "active" : ""}`}
+                    onClick={() => setFormData({ ...formData, role: "donor" })}
+                  >
+                    🍱 Donor
+                  </button>
+                  <button
+                    type="button"
+                    className={`role-btn ${formData.role === "volunteer" ? "active" : ""}`}
+                    onClick={() => setFormData({ ...formData, role: "volunteer" })}
+                  >
+                    🚚 Volunteer
+                  </button>
+                  <button
+                    type="button"
+                    className={`role-btn ${formData.role === "receiver" ? "active" : ""}`}
+                    onClick={() => setFormData({ ...formData, role: "receiver" })}
+                  >
+                    🏠 Receiver
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+
+          <button type="submit" className="submit-btn" disabled={loading}>
+            {loading ? "Please wait..." : mode === "login" ? "Sign In" : "Create Account"}
           </button>
         </form>
 
-      
+        <div className="toggle-mode">
+          {mode === "login" ? (
+            <>
+              Don't have an account?{" "}
+              <button onClick={() => setMode("register")} className="toggle-btn">
+                Sign up
+              </button>
+            </>
+          ) : (
+            <>
+              Already have an account?{" "}
+              <button onClick={() => setMode("login")} className="toggle-btn">
+                Sign in
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

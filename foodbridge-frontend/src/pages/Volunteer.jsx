@@ -4,8 +4,30 @@ import MapContainer from "../components/MapContainer";
 import "./Volunteer.css";
 
 const Volunteer = () => {
-  const { donations, acceptDonation, completeDonation } = useDonations();
+  const { donations, updateStatus } = useDonations();
   const { user } = useAuth();
+
+  const handleAccept = async (id) => {
+    if (!window.confirm("Accept this donation pickup task?")) return;
+
+    try {
+      await updateStatus(id, "pickup");
+      alert("Task accepted! Donation status updated to 'Picked Up'");
+    } catch (err) {
+      alert(err.detail || "Failed to accept task");
+    }
+  };
+
+  const handleComplete = async (id) => {
+    if (!window.confirm("Mark this delivery as complete?")) return;
+
+    try {
+      await updateStatus(id, "deliver");
+      alert("Delivery completed! Thank you for your service 🎉");
+    } catch (err) {
+      alert(err.detail || "Failed to complete delivery");
+    }
+  };
 
   const available = donations.filter(d => d.status === "available");
   const active = donations.filter(d => d.status === "picked");
@@ -55,7 +77,7 @@ const Volunteer = () => {
                       <div className="task-meta">{d.quantity} {d.unit} · {d.distance} km</div>
                     </div>
                   </div>
-                  <button className="task-btn accept-btn" onClick={() => acceptDonation(d.id)}>
+                  <button className="task-btn accept-btn" onClick={() => handleAccept(d.id)}>
                     Accept
                   </button>
                 </div>
@@ -85,7 +107,7 @@ const Volunteer = () => {
                       <div className="task-meta">{d.quantity} {d.unit} · En route</div>
                     </div>
                   </div>
-                  <button className="task-btn deliver-btn" onClick={() => completeDonation(d.id)}>
+                  <button className="task-btn deliver-btn" onClick={() => handleComplete(d.id)}>
                     Delivered ✓
                   </button>
                 </div>
@@ -120,7 +142,7 @@ const Volunteer = () => {
 
       {/* Map */}
       <div className="volunteer-map">
-        <MapContainer tasks={donations} onAccept={acceptDonation} />
+        <MapContainer tasks={donations} onAccept={handleAccept} />
       </div>
     </div>
   );

@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }) => {
       }
     };
     verifyUser();
-  }, []);
+  }, [user]);
 
   const login = async (username, password) => {
     setLoading(true);
