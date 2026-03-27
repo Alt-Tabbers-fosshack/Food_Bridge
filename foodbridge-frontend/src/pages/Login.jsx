@@ -107,9 +107,7 @@ const Login = () => {
           </button>
         </form>
 
-        <p className="login-footer">
-          No account needed — this is a hackathon demo 🚀
-        </p>
+      
       </div>
     </div>
   );
