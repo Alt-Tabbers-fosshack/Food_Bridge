@@ -1,46 +1,77 @@
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework import status, generics
 from rest_framework.response import Response
-from django.contrib.auth import authenticate, login as auth_login
+from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate, get_user_model
 
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def login(request):
-    """
-    Login endpoint - creates session and returns user info
-    POST /api/auth/login/
-    Body: {
-        "username": "your_username",
-        "password": "your_password"
-    }
-    """
-    username = request.data.get('username')
-    password = request.data.get('password')
+from .serializers import UserSerializer, UserRegistrationSerializer, LoginSerializer
+
+User = get_user_model()
+
+
+class RegisterView(generics.CreateAPIView):
+    """User registration endpoint"""
     
-    if not username or not password:
-        return Response(
-            {'detail': 'Username and password are required.'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+    permission_classes = [AllowAny]
+    serializer_class = UserRegistrationSerializer
     
-    user = authenticate(username=username, password=password)
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+        
+        return Response({
+            'user': UserSerializer(user).data,
+            'tokens': {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }
+        }, status=status.HTTP_201_CREATED)
+
+
+class LoginView(APIView):
+    """User login endpoint"""
     
-    if user is None:
-        return Response(
-            {'detail': 'Invalid username or password.'},
-            status=status.HTTP_401_UNAUTHORIZED
-        )
+    permission_classes = [AllowAny]
     
-    # Create session
-    auth_login(request, user)
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        username = serializer.validated_data['username']
+        password = serializer.validated_data['password']
+        
+        user = authenticate(username=username, password=password)
+        
+        if user is None:
+            return Response(
+                {'detail': 'Invalid credentials'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+        
+        return Response({
+            'user': UserSerializer(user).data,
+            'tokens': {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }
+        })
+
+
+class CurrentUserView(generics.RetrieveAPIView):
+    """Get current authenticated user"""
     
-    return Response({
-        'user_id': user.id,
-        'username': user.username,
-        'email': user.email,
-        'role': user.role if hasattr(user, 'role') else None,
-        'message': 'Login successful. Use the session cookie for subsequent requests.'
-    }, status=status.HTTP_200_OK)
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer
+    
+    def get_object(self):
+        return self.request.user
 
 

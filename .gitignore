@@ -17,3 +17,5 @@ db.sqlite3
 .idea/
 .vscode/
 desktop.ini
+
+/MIGRATION_SUMMARY.md

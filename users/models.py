@@ -17,3 +17,12 @@ class User(AbstractUser):
         choices=ROLE_CHOICES,
         default=DONOR
     )
+    
+    # Make email required and unique
+    email = models.EmailField(unique=True)
+    
+    # Optional: Add phone field for future
+    phone = models.CharField(max_length=15, blank=True, null=True)
+    
+    def __str__(self):
+        return f"{self.username} ({self.role})"
