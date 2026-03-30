@@ -1,0 +1,1 @@
+web: gunicorn foodbridge_backend.wsgi
