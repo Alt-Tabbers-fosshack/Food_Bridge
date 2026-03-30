@@ -25,8 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-hsou%ofmb*w8dfz8l-lu599b(zqma!mdkirz1zn9@67tl3u0)n')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
+DEBUG = False
 ALLOWED_HOSTS = ['*']
 
 
@@ -93,9 +92,9 @@ import dj_database_url
 
 DATABASES = {
     'default': dj_database_url.parse(
-        os.environ.get("postgresql://foodbridge_db_bxjy_user:Z2GY4SeTDZHywrY0pb1VHDeILuFPwLHR@dpg-d758mtpr0fns73egopug-a.virginia-postgres.render.com/foodbridge_db_bxjy", "sqlite:///db.sqlite3"),
+        os.environ.get("DATABASE_URL", "sqlite:///db.sqlite3"),
         conn_max_age=600,
-        ssl_require=False
+        ssl_require=True
     )
 }
 
