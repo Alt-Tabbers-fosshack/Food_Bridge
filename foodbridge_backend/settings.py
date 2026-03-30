@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-hsou%ofmb*w8dfz8l-lu599b(zqma!mdkirz1zn9@67tl3u0)n')
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -91,8 +91,8 @@ WSGI_APPLICATION = 'foodbridge_backend.wsgi.application'
 import dj_database_url
 
 DATABASES = {
-    'default': dj_database_url.parse(
-        os.environ.get("DATABASE_URL", "sqlite:///db.sqlite3"),
+    'default': dj_database_url.config(
+        default=os.environ.get("DATABASE_URL"),
         conn_max_age=600,
         ssl_require=True
     )
