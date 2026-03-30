@@ -89,13 +89,15 @@ WSGI_APPLICATION = 'foodbridge_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+import dj_database_url
 
+DATABASES = {
+    'default': dj_database_url.parse(
+        os.environ.get("postgresql://foodbridge_db_bxjy_user:Z2GY4SeTDZHywrY0pb1VHDeILuFPwLHR@dpg-d758mtpr0fns73egopug-a.virginia-postgres.render.com/foodbridge_db_bxjy", "sqlite:///db.sqlite3"),
+        conn_max_age=600,
+        ssl_require=False
+    )
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
