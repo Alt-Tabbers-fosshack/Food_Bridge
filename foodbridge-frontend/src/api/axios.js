@@ -40,7 +40,7 @@ api.interceptors.response.use(
         } catch (refreshError) {
           // Refresh failed, logout user
           localStorage.clear();
-          window.location.href = "/login";
+          window.location.replace("/login");
           return Promise.reject(refreshError);
         }
       }
