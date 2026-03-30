@@ -26,7 +26,7 @@ SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
-ALLOWED_HOSTS = ['https://food-bridge-yczx.onrender.com']
+ALLOWED_HOSTS = ['food-bridge-yczx.onrender.com']
 
 
 # Application definition
