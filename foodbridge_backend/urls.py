@@ -23,4 +23,5 @@ urlpatterns = [
     # look inside the donations.urls file."
     path('api/', include('users.urls')),
     path('api/donations/', include('donations.urls')),
+    path('', home)
 ]
