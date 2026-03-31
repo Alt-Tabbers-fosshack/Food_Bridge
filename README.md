@@ -1,70 +1,94 @@
-# Getting Started with Create React App
+# FoodBridge
+⚠️ This repository uses separate branches:
+- Frontend → `main` branch
+- Backend → `master3` branch
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+---
 
-## Available Scripts
+# 🌍 FoodBridge — Frontend
 
-In the project directory, you can run:
+> Connecting surplus food with those who need it most, in real time.
 
-### `npm start`
+FoodBridge is a role-based food redistribution web app. Donors list surplus food, volunteers pick it up via an interactive map, and receivers track incoming deliveries — all in one platform.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 🔗 Links
 
-### `npm test`
+| | URL |
+|---|---|
+| 🚀 Deployed Frontend | https://food-bridge.vercel.app |
+| 🔌 Backend API | https://your-backend.onrender.com |
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## 🛠️ Tech Stack
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- **React 19** — UI framework
+- **React Router v7** — client-side routing
+- **Axios** — HTTP client with JWT interceptors
+- **Leaflet + OpenStreetMap** — interactive donation map (no API key needed)
+- **React Context API** — global auth and donation state
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## ⚙️ How to Run Locally
 
-### `npm run eject`
+### 1. Clone the repo and switch to the frontend branch
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```bash
+git clone https://github.com/your-username/FoodBridge.git
+cd FoodBridge
+git checkout main
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 2. Install dependencies
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```bash
+npm install
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### 3. Set up environment variables
 
-## Learn More
+Create a `.env` file in the project root:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```env
+REACT_APP_API_URL=http://localhost:8000
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+> For production, this should point to the deployed Render backend:
+> `REACT_APP_API_URL=https://your-backend.onrender.com`
 
-### Code Splitting
+### 4. Start the development server
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```bash
+npm start
+```
 
-### Analyzing the Bundle Size
+App runs at [http://localhost:3000](http://localhost:3000).
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+---
 
-### Making a Progressive Web App
+## 👤 User Roles
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+| Role | Route | Description |
+|---|---|---|
+| 🍱 Donor | `/donor` | Post surplus food, track donation status |
+| 🚚 Volunteer | `/volunteer` | Accept pickups, mark deliveries via map |
+| 🏠 Receiver | `/receiver` | View incoming and available donations |
 
-### Advanced Configuration
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## 📁 Key Structure
 
-### Deployment
+```
+src/
+├── api/            # Axios instance, auth + donation API calls
+├── components/     # MapContainer, ProtectedRoute
+├── context/        # AuthContext, DonationContext
+└── pages/          # Login, Donor, Volunteer, Receiver
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+---
 
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+> **Note:** This is the `main` branch. The backend lives in the `master3` branch and is built with Django + Django REST Framework. See its README for setup and API docs.
