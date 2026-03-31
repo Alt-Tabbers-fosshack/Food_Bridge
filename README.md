@@ -17,8 +17,8 @@ FoodBridge is a role-based food redistribution web app. Donors list surplus food
 
 | | URL |
 |---|---|
-| 🚀 Deployed Frontend | https://food-bridge.vercel.app |
-| 🔌 Backend API | https://your-backend.onrender.com |
+| 🚀 Deployed Frontend | https://food-bridge-six.vercel.app/ |
+| 🔌 Backend API | food-bridge-yczx.onrender.com/api |
 
 ---
 
