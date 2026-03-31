@@ -62,7 +62,7 @@ ROOT_URLCONF = 'foodbridge_backend.urls'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://food-bridge-six.vercel.app/",
+    "https://food-bridge-six.vercel.app",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
